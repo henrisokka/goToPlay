@@ -15,10 +15,12 @@ var upgrader = websocket.Upgrader{
 
 func main() {
 	fmt.Println("main started")
+	newHub()
 
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
-
+		newClient(1)
+		fmt.Println(r)
 		for {
 			// Read message from browser
 			msgType, msg, err := conn.ReadMessage()
