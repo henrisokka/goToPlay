@@ -17,6 +17,12 @@ var activeHub Hub = Hub{
 func (h *Hub) registerClient(conn *websocket.Conn) {
 	h.clients = append(h.clients, conn)
 	conn.WriteMessage(1, []byte("Sinut on nyt rekisteröity"))
+
+	for _, c := range h.clients {
+		if c != conn {
+			c.WriteMessage(1, []byte("Joku rekisteröityi!"))
+		}
+	}
 	fmt.Println("New client registered:")
 	fmt.Println(h.clients)
 }
