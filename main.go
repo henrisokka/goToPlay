@@ -17,13 +17,14 @@ func main() {
 	fmt.Println("main started")
 	newHub()
 
-	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
-		newClient(1)
-		fmt.Println(r)
+		newClient(1, conn)
+		//fmt.Println(conn)
 		for {
 			// Read message from browser
 			msgType, msg, err := conn.ReadMessage()
+			fmt.Println("msgType: ", msgType)
 			if err != nil {
 				return
 			}
@@ -41,15 +42,12 @@ func main() {
 			}
 		}
 	})
-	/*
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "./front/index.html")
-		})
-	*/
+
 	http.Handle("/", http.FileServer(http.Dir("./front")))
 
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("Listening at port 8080")
+
 }
 
 func music() []byte {
