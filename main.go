@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -13,16 +14,30 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+type soundInfo struct {
+	Vel    int
+	Freq   int
+	Length int
+}
+
 func main() {
 	fmt.Println("main started")
 	newHub()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
-		newClient(1, conn)
+		newClient("0", conn)
 		//fmt.Println(conn)
 		for {
 			// Read message from browser
+			sound := &soundInfo{
+				Vel:    20,
+				Freq:   440,
+				Length: 30,
+			}
+			jsMsg, err := json.Marshal(sound)
+			fmt.Println(string(jsMsg))
+
 			msgType, msg, err := conn.ReadMessage()
 			fmt.Println("msgType: ", msgType)
 			if err != nil {
@@ -37,7 +52,7 @@ func main() {
 			fmt.Printf("%s sent: %s\n", conn.RemoteAddr(), string(msg))
 
 			// Write message back to browser
-			if err = conn.WriteMessage(msgType, music()); err != nil {
+			if err = conn.WriteJSON(string(jsMsg)); err != nil {
 				return
 			}
 		}

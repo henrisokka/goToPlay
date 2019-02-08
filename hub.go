@@ -6,21 +6,26 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type Client struct {
+	conn *websocket.Conn
+	id   string
+}
+
 type Hub struct {
-	clients []*websocket.Conn
+	clients []Client
 }
 
 var activeHub Hub = Hub{
-	make([]*websocket.Conn, 0),
+	make([]Client, 0),
 }
 
-func (h *Hub) registerClient(conn *websocket.Conn) {
-	h.clients = append(h.clients, conn)
-	conn.WriteMessage(1, []byte("Sinut on nyt rekisteröity"))
+func (h *Hub) registerClient(cl Client) {
+	h.clients = append(h.clients, cl)
+	cl.conn.WriteMessage(1, []byte("Sinut on nyt rekisteröity"))
 
 	for _, c := range h.clients {
-		if c != conn {
-			c.WriteMessage(1, []byte("Joku rekisteröityi!"))
+		if c != cl {
+			c.conn.WriteMessage(1, []byte("Joku rekisteröityi!"))
 		}
 	}
 	fmt.Println("New client registered:")
@@ -32,6 +37,8 @@ func newHub() {
 	fmt.Println("Hub registering?")
 }
 
-func newClient(id int, conn *websocket.Conn) {
-	activeHub.registerClient(conn)
+func newClient(id string, conn *websocket.Conn) {
+	c := Client{conn, id}
+
+	activeHub.registerClient(c)
 }
