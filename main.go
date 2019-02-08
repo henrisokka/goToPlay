@@ -26,17 +26,15 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
 		newClient("0", conn)
-		//fmt.Println(conn)
+
 		for {
 			// Read message from browser
 
-			msgType, msg, err := conn.ReadMessage()
-			fmt.Println("msgType: ", msgType)
+			_, msg, err := conn.ReadMessage()
+
 			if err != nil {
 				return
 			}
-
-			fmt.Println(msg)
 
 			a := action{}
 			json.Unmarshal(msg, &a)

@@ -15,7 +15,7 @@ type Hub struct {
 	clients []Client
 }
 
-var activeHub Hub = Hub{
+var activeHub = Hub{
 	make([]Client, 0),
 }
 

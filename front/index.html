@@ -1,6 +1,7 @@
 <!-- websockets.html -->
-<input id="input" type="text" />
-<button onclick="send()">Send</button>
+<div style="width: 100%; height: 100%; background-color: red" onmousedown="handleMouseDown(event)">
+	
+</div>
 <pre id="output"></pre>
 <script type="text/javascript" src="./player.js"></script>
 <script>
@@ -19,18 +20,26 @@
 		testMusic(e.data, socket);
 	};
 
-	function send() {
+	function handleMouseDown(event) {
+		console.log("Handle mouse down");
+		console.log(event);
+		const vel = event.clientY;
+		const freq = event.clientX;
+
+		send(vel, freq)
+	} 
+
+	function send(vel, freq) {
 		const message = {
 			Type: "START_SOUND",
 			Sound: {
-				Vel: 20,
-				Freq: 440,
+				Vel: vel,
+				Freq: freq,
 				Length: 30,
 			}
 		}
 
 		socket.send(JSON.stringify(message));
-		input.value = "";
 	}
 
 
