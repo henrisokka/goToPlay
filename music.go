@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 type state struct {
+	sounds []soundInfo
 }
 
 type synth interface {
@@ -37,4 +38,8 @@ func startSound(ie incomingEvent) {
 
 func stopSound(ie incomingEvent) {
 	fmt.Println("Stop")
+}
+
+func (s *state) newSound(si soundInfo) {
+	s.sounds = append(s.sounds, si)
 }

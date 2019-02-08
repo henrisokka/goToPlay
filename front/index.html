@@ -21,11 +21,8 @@
 	};
 
 	function handleMouseDown(event) {
-		console.log("Handle mouse down");
-		console.log(event);
 		const vel = event.clientY;
 		const freq = event.clientX;
-
 		send(vel, freq)
 	} 
 
@@ -41,6 +38,4 @@
 
 		socket.send(JSON.stringify(message));
 	}
-
-
 </script>

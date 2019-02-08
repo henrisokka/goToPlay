@@ -39,6 +39,9 @@ func newHub() {
 
 func newClient(id string, conn *websocket.Conn) {
 	c := Client{conn, id}
-
 	activeHub.registerClient(c)
+}
+
+func updateClients(s state, conn *websocket.Conn) {
+
 }
