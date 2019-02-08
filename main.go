@@ -14,10 +14,9 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-type soundInfo struct {
-	Vel    int
-	Freq   int
-	Length int
+type incomingEvent struct {
+	c *websocket.Conn
+	a action
 }
 
 func main() {
@@ -30,13 +29,6 @@ func main() {
 		//fmt.Println(conn)
 		for {
 			// Read message from browser
-			sound := &soundInfo{
-				Vel:    20,
-				Freq:   440,
-				Length: 30,
-			}
-			jsMsg, err := json.Marshal(sound)
-			fmt.Println(string(jsMsg))
 
 			msgType, msg, err := conn.ReadMessage()
 			fmt.Println("msgType: ", msgType)
@@ -44,17 +36,19 @@ func main() {
 				return
 			}
 
-			if string(msg) == "test" {
-				fmt.Println("You send test message")
-			}
+			fmt.Println(msg)
 
-			// Print the message to the console
-			fmt.Printf("%s sent: %s\n", conn.RemoteAddr(), string(msg))
+			a := action{}
+			json.Unmarshal(msg, &a)
+
+			ie := incomingEvent{conn, a}
+			actionHandler(ie)
 
 			// Write message back to browser
-			if err = conn.WriteJSON(string(jsMsg)); err != nil {
+			/*if err = conn.WriteJSON(string(jsMsg)); err != nil {
 				return
 			}
+			*/
 		}
 	})
 
@@ -68,4 +62,14 @@ func main() {
 func music() []byte {
 	// here we mimic the music information
 	return []byte("music mister BBoy")
+}
+
+func jsonHandler() {
+	sound := &soundInfo{
+		Vel:    20,
+		Freq:   440,
+		Length: 30,
+	}
+	jsMsg, _ := json.Marshal(sound)
+	fmt.Println(string(jsMsg))
 }

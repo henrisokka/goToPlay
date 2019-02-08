@@ -8,25 +8,33 @@ type state struct {
 type synth interface {
 }
 
-type action struct {
-	Type string
+type soundInfo struct {
+	Vel    int
+	Freq   int
+	Length int
 }
 
-func actionListener(a action) {
-	switch a.Type {
+type action struct {
+	Type  string
+	Sound soundInfo
+}
+
+func actionHandler(ie incomingEvent) {
+	switch ie.a.Type {
 	case "START_SOUND":
-		startSound(a)
+		startSound(ie)
 	case "STOP_SOUND":
-		stopSound(a)
+		stopSound(ie)
 	default:
 		fmt.Println("Can't detect the type")
 	}
 }
 
-func startSound(a action) {
+func startSound(ie incomingEvent) {
 	fmt.Println("Start")
+	fmt.Println(ie.a.Sound)
 }
 
-func stopSound(a action) {
+func stopSound(ie incomingEvent) {
 	fmt.Println("Stop")
 }

@@ -20,7 +20,16 @@
 	};
 
 	function send() {
-		socket.send(input.value);
+		const message = {
+			Type: "START_SOUND",
+			Sound: {
+				Vel: 20,
+				Freq: 440,
+				Length: 30,
+			}
+		}
+
+		socket.send(JSON.stringify(message));
 		input.value = "";
 	}
 
