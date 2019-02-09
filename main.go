@@ -21,11 +21,11 @@ type incomingEvent struct {
 
 func main() {
 	fmt.Println("main started")
-	newHub()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
-		newClient("0", conn)
+		
+		registerClient(conn, "1")
 
 		for {
 			// Read message from browser
@@ -55,11 +55,6 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("Listening at port 8080")
 
-}
-
-func music() []byte {
-	// here we mimic the music information
-	return []byte("music mister BBoy")
 }
 
 func jsonHandler() {
