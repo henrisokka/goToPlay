@@ -15,8 +15,8 @@
 	};
 
 	socket.onmessage = function (e) {
-		output.innerHTML += "Server: " + e.data + "\n";
-		console.log(JSON.parse(e.data));
+		console.log(e.data);
+		//console.log(JSON.parse(e.data));
 		testMusic(e.data, socket);
 	};
 

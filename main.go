@@ -24,7 +24,7 @@ func main() {
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, _ := upgrader.Upgrade(w, r, nil) // error ignored for sake of simplicity
-		
+
 		registerClient(conn, "1")
 
 		for {
@@ -39,8 +39,11 @@ func main() {
 			a := action{}
 			json.Unmarshal(msg, &a)
 
-			ie := incomingEvent{conn, a}
-			actionHandler(ie)
+			//ie := incomingEvent{conn, a}
+			fmt.Println("Message received")
+
+			handleMessage(conn, a)
+			//actionHandler(ie)
 
 			// Write message back to browser
 			/*if err = conn.WriteJSON(string(jsMsg)); err != nil {
