@@ -68,7 +68,6 @@ func (r *Room) addClientToRoom(cl Client) {
 func handleMessage(conn *websocket.Conn, message action) {
 	fmt.Println("handleMessage")
 	fmt.Println(message)
-	fmt.Println(len(rooms))
 	Actions = append(Actions, message)
 
 	//update all the other sockets
@@ -79,9 +78,7 @@ func handleMessage(conn *websocket.Conn, message action) {
 	fmt.Println(rooms)
 
 	for _, rm := range rooms {
-		fmt.Println(rm.clients)
 		for _, cl := range rm.clients {
-			fmt.Println(cl.conn == conn)
 			if cl.conn == conn {
 				fmt.Println("We have find what we are looking for")
 				room = rm
@@ -89,17 +86,13 @@ func handleMessage(conn *websocket.Conn, message action) {
 			}
 		}
 	}
-	fmt.Println("clients in the room: ", room.clients)
-	for _, cl := range room.clients {
-		fmt.Println("client: ", cl)
 
+	for _, cl := range room.clients {
 		if cl != sender {
-			cl.conn.WriteMessage(1, []byte("Someone sent a message to the room"))
 			json, _ := json.Marshal(message)
+			cl.conn.WriteMessage(1, []byte("Someone sent a message to the room"))
 			cl.conn.WriteJSON(string(json))
 		}
-		fmt.Println(sender)
-		fmt.Println(cl)
 	}
 
 }
