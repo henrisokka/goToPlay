@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
@@ -16,9 +15,10 @@ type Client struct {
 type Room struct {
 	clients []Client
 	id      string
+	state   State
 }
 
-var Actions = make([]action, 0)
+var Actions = make([]Action, 0)
 
 var rooms = make([]Room, 0)
 
@@ -45,9 +45,6 @@ func registerClient(conn *websocket.Conn, roomId string) {
 	cl := Client{conn, "foo", roomId}
 
 	rooms[currentRoomIndex].addClientToRoom(cl)
-	fmt.Println("Rooms after client add")
-	fmt.Println(rooms)
-
 }
 
 func newRoom(id string) int {
@@ -65,38 +62,34 @@ func (r *Room) addClientToRoom(cl Client) {
 	cl.conn.WriteMessage(1, []byte("You are registered to the room"))
 }
 
-func handleMessage(conn *websocket.Conn, message action) {
+func handleMessage(e Event) {
 	fmt.Println("handleMessage")
-	fmt.Println(message)
-	Actions = append(Actions, message)
+	fmt.Println(e.action)
+	Actions = append(Actions, e.action)
 
 	//update all the other sockets
 	var sender Client
-	var room Room
-
-	fmt.Println("ranging rooms:")
-	fmt.Println(rooms)
+	var room *Room
+	var roomIndex int
 
 	for _, rm := range rooms {
-		for _, cl := range rm.clients {
-			if cl.conn == conn {
+		for i, cl := range rm.clients {
+			if cl.conn == e.conn {
 				fmt.Println("We have find what we are looking for")
-				room = rm
+				room = &rm
+				roomIndex = i
 				sender = cl
 			}
 		}
 	}
-
-	for _, cl := range room.clients {
-		if cl != sender {
-			json, _ := json.Marshal(message)
-			cl.conn.WriteMessage(1, []byte("Someone sent a message to the room"))
-			cl.conn.WriteJSON(string(json))
-		}
-	}
-
+	rooms[roomIndex].state.handleAction(e.action)
+	room.sendStateToClients(sender.conn)
 }
 
-func (r *Room) sendStateToClients() {
-
+func (r *Room) sendStateToClients(sender *websocket.Conn) {
+	for _, cl := range r.clients {
+		if cl.conn != sender {
+			cl.conn.WriteMessage(1, []byte("We should send you the new state here, just wait a minute!"))
+		}
+	}
 }

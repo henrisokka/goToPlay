@@ -14,11 +14,6 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-type incomingEvent struct {
-	c *websocket.Conn
-	a action
-}
-
 func main() {
 	fmt.Println("main started")
 
@@ -32,17 +27,16 @@ func main() {
 
 			_, msg, err := conn.ReadMessage()
 
+			fmt.Println(&conn)
+
 			if err != nil {
 				return
 			}
 
-			a := action{}
+			a := Action{}
 			json.Unmarshal(msg, &a)
-
-			//ie := incomingEvent{conn, a}
-			fmt.Println("Message received")
-
-			handleMessage(conn, a)
+			ie := Event{conn, a}
+			handleMessage(ie)
 			//actionHandler(ie)
 
 			// Write message back to browser
@@ -61,7 +55,7 @@ func main() {
 }
 
 func jsonHandler() {
-	sound := &soundInfo{
+	sound := &SoundInfo{
 		Vel:    20,
 		Freq:   440,
 		Length: 30,
