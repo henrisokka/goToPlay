@@ -7,7 +7,7 @@ import (
 )
 
 type State struct {
-	sounds []SoundInfo
+	Sounds []SoundInfo
 }
 
 type Event struct {
@@ -28,6 +28,6 @@ type SoundInfo struct {
 
 func (s *State) handleAction(a Action) {
 	fmt.Println("Before append:")
-	fmt.Println(s.sounds)
-	s.sounds = append(s.sounds, a.Sound)
+	fmt.Println(s.Sounds)
+	s.Sounds = append(s.Sounds, a.Sound)
 }

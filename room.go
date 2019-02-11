@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
@@ -72,8 +73,8 @@ func handleMessage(e Event) {
 	var room *Room
 	var roomIndex int
 
-	for _, rm := range rooms {
-		for i, cl := range rm.clients {
+	for i, rm := range rooms {
+		for _, cl := range rm.clients {
 			if cl.conn == e.conn {
 				fmt.Println("We have find what we are looking for")
 				room = &rm
@@ -87,9 +88,18 @@ func handleMessage(e Event) {
 }
 
 func (r *Room) sendStateToClients(sender *websocket.Conn) {
+	fmt.Println("Send state to clients")
 	for _, cl := range r.clients {
+		fmt.Println("inside for")
 		if cl.conn != sender {
+			fmt.Println("inside if")
+			stateJSON, _ := json.Marshal(r.state)
+			fmt.Println("stateJSON")
+			fmt.Println(stateJSON)
 			cl.conn.WriteMessage(1, []byte("We should send you the new state here, just wait a minute!"))
+			if err := cl.conn.WriteJSON(string(stateJSON)); err != nil {
+				fmt.Println("Error in JSONing: ", err)
+			}
 		}
 	}
 }
