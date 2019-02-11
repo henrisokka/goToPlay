@@ -43,7 +43,9 @@ func registerClient(conn *websocket.Conn, roomId string) {
 		currentRoom = &rooms[currentRoomIndex]
 	}
 
-	cl := Client{conn, "foo", roomId}
+	id := string(len(rooms[currentRoomIndex].clients)) + "client"
+
+	cl := Client{conn, id, roomId}
 
 	rooms[currentRoomIndex].addClientToRoom(cl)
 }
@@ -64,8 +66,6 @@ func (r *Room) addClientToRoom(cl Client) {
 }
 
 func handleMessage(e Event) {
-	fmt.Println("handleMessage")
-	fmt.Println(e.action)
 	Actions = append(Actions, e.action)
 
 	//update all the other sockets
@@ -76,27 +76,21 @@ func handleMessage(e Event) {
 	for i, rm := range rooms {
 		for _, cl := range rm.clients {
 			if cl.conn == e.conn {
-				fmt.Println("We have find what we are looking for")
 				room = &rm
 				roomIndex = i
 				sender = cl
 			}
 		}
 	}
-	rooms[roomIndex].state.handleAction(e.action)
+	rooms[roomIndex].state.handleAction(e.action, sender.id)
 	room.sendStateToClients(sender.conn)
 }
 
 func (r *Room) sendStateToClients(sender *websocket.Conn) {
 	fmt.Println("Send state to clients")
 	for _, cl := range r.clients {
-		fmt.Println("inside for")
 		if cl.conn != sender {
-			fmt.Println("inside if")
 			stateJSON, _ := json.Marshal(r.state)
-			fmt.Println("stateJSON")
-			fmt.Println(stateJSON)
-			cl.conn.WriteMessage(1, []byte("We should send you the new state here, just wait a minute!"))
 			if err := cl.conn.WriteJSON(string(stateJSON)); err != nil {
 				fmt.Println("Error in JSONing: ", err)
 			}

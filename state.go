@@ -7,7 +7,7 @@ import (
 )
 
 type State struct {
-	Sounds []SoundInfo
+	Sounds []SoundWithPlayer
 }
 
 type Event struct {
@@ -26,8 +26,27 @@ type SoundInfo struct {
 	Length int
 }
 
-func (s *State) handleAction(a Action) {
-	fmt.Println("Before append:")
-	fmt.Println(s.Sounds)
-	s.Sounds = append(s.Sounds, a.Sound)
+type SoundWithPlayer struct {
+	Sound  SoundInfo
+	Player string
+}
+
+func (s *State) handleAction(a Action, clientID string) {
+	switch a.Type {
+	case "START_SOUND":
+		s.startSound(a.Sound, clientID)
+	case "STOP_SOUND":
+		s.stopSound(a.Sound)
+	default:
+		fmt.Println("Can't detect action type")
+	}
+}
+
+func (s *State) startSound(so SoundInfo, clientID string) {
+	sound := SoundWithPlayer{so, clientID}
+	s.Sounds = append(s.Sounds, sound)
+}
+
+func (s *State) stopSound(so SoundInfo) {
+	fmt.Println("Stop sound")
 }
