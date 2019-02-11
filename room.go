@@ -62,28 +62,41 @@ func newRoom(id string) int {
 
 func (r *Room) addClientToRoom(cl Client) {
 	r.clients = append(r.clients, cl)
-	cl.conn.WriteMessage(1, []byte("You are registered to the room"))
 }
 
 func handleMessage(e Event) {
 	Actions = append(Actions, e.action)
 
-	//update all the other sockets
 	var sender Client
-	var room *Room
+	//var room *Room
 	var roomIndex int
 
 	for i, rm := range rooms {
 		for _, cl := range rm.clients {
 			if cl.conn == e.conn {
-				room = &rm
+				//room = &rm
 				roomIndex = i
 				sender = cl
 			}
 		}
 	}
-	rooms[roomIndex].state.handleAction(e.action, sender.id)
-	room.sendStateToClients(sender.conn)
+
+	rooms[roomIndex].sendActionToOtherClients(e.action, sender.conn)
+	/*
+		rooms[roomIndex].state.handleAction(e.action, sender.id)
+		room.sendStateToClients(sender.conn)
+	*/
+}
+
+func (r *Room) sendActionToOtherClients(a Action, sender *websocket.Conn) {
+	for _, cl := range r.clients {
+		if cl.conn != sender {
+			stateJSON, _ := json.Marshal(a.Sound)
+			if err := cl.conn.WriteJSON(string(stateJSON)); err != nil {
+				fmt.Println("Error in JSONing: ", err)
+			}
+		}
+	}
 }
 
 func (r *Room) sendStateToClients(sender *websocket.Conn) {
